@@ -1,0 +1,12 @@
+{
+    "atleta": {"nome": "Atleta", "custo": 4, "desc": "Bônus em corridas e escaladas; cansa menos."},
+    "rapido_no_gatilho": {"nome": "Rápido no Gatilho", "custo": 3, "desc": "Iniciativa maior em combates em armas de fogo."},
+    "maos_de_fada": {"nome": "Mãos de Fada", "custo": 2, "desc": "Bônus para abrir fechaduras ou eletrônicos."},
+    "estomago_de_ferro": {"nome": "Estômago de Ferro", "custo": 2, "desc": "Resistência a comida estragada ou água suja."},
+    "sentidos_aguçados": {"nome": "Sentidos Aguçados", "custo": 3, "desc": "Facilidade para ouvir passos ou notar perigo."},
+    "cura_rapida": {"nome": "Cura Rápida", "custo": 4, "desc": "Recupera ferimentos em metade do tempo."},
+    "corpo_fechado": {"nome": "Corpo Fechado", "custo": 3, "desc": "Maior resistência a doenças e infecções."},
+    "inteligencia-avançada": {"nome": "Inteligência Avançada", "custo": 2, "desc": "Mais pontos em perícias intelectuais."},
+    "resistente_ao_frio": {"nome": "Resistente ao Frio", "custo": 1, "desc": "Menos penalidade em climas severos."},
+    "lutador_amador": {"nome": "Lutador Amador", "custo": 3, "desc": "Mais dano desarmado ou com armas brancas."}
+}

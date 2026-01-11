@@ -1,0 +1,12 @@
+{
+    "asmatico": {"nome": "Asmático", "custo": 4, "desc": "Cansa muito rápido; chance de falta de ar."},
+    "covarde": {"nome": "Covarde", "custo": 3, "desc": "Entra em pânico ao ver sangue ou perigo."},
+    "miopia": {"nome": "Miopia", "custo": 2, "desc": "Penalidade à distância sem óculos."},
+    "barulhento": {"nome": "Barulhento", "custo": 3, "desc": "Faz mais barulho e derruba objetos."},
+    "cunhado_de_ouro": {"nome": "Cunhado de Ouro", "custo": 2, "desc": "Carrega um NPC dependente que não ajuda."},
+    "sedentario": {"nome": "Sedentário", "custo": 4, "desc": "Menos força e fôlego curtíssimo."},
+    "sono_pesado": {"nome": "Sono Pesado", "custo": 2, "desc": "Difícil de acordar com barulhos."},
+    "pavio_curto": {"nome": "Pavio Curto", "custo": 2, "desc": "Penalidade em paciência ou diplomacia."},
+    "gula": {"nome": "Gula", "custo": 2, "desc": "Precisa comer o dobro para não ter fome."},
+    "hemofilico": {"nome": "Hemofílico", "custo": 4, "desc": "Sangra fácil e demora a estancar."}
+}

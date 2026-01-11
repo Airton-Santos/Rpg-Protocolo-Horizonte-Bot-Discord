@@ -1,0 +1,11 @@
+# Configurações e Tokens
+config.py
+.env
+
+# Banco de dados (O Railway usará o Volume)
+database/fichas.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
