@@ -8,5 +8,6 @@
     "corpo_fechado": {"nome": "Corpo Fechado", "custo": 3, "desc": "Maior resistência a doenças e infecções."},
     "inteligencia-avançada": {"nome": "Inteligência Avançada", "custo": 2, "desc": "Mais pontos em perícias intelectuais."},
     "resistente_ao_frio": {"nome": "Resistente ao Frio", "custo": 1, "desc": "Menos penalidade em climas severos."},
-    "lutador_amador": {"nome": "Lutador Amador", "custo": 3, "desc": "Mais dano desarmado ou com armas brancas."}
+    "lutador_amador": {"nome": "Lutador Amador", "custo": 3, "desc": "Mais dano desarmado ou com armas brancas."},
+    "extrovertido": {"nome": "Extrovertido", "custo": 2, "desc": "Facilidade em interações sociais; bônus em Carisma."}
 }
