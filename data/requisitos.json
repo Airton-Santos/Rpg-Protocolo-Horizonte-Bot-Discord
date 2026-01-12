@@ -1,35 +1,34 @@
 {
     "armas_brancas": {
-        "Leves (Facas, Canivetes)": "10 Força",
-        "Médias (Machados, Espadas)": "25 Força",
-        "Pesadas (Marretas, Serras)": "40 Força",
-        "Colossais (Armas de Duas Mãos)": "50 Força"
+        "Leves (Facas, Canivetes)": {"forca": 10},
+        "Médias (Machados, Espadas)": {"forca": 25},
+        "Pesadas (Marretas, Serras)": {"forca": 40},
+        "Colossais (Armas de Duas Mãos)": {"forca": 50}
     },
     "armas_fogo": {
-        "Pistolas e Subs": "15 Percepção / 10 Destreza",
-        "Rifles e Escopetas": "30 Percepção / 20 Força",
-        "Snipers de Precisão": "50 Percepção / 25 Destreza",
-        "Armas Pesadas (M60, RPG)": "40 Força / 30 Vigor"
+        "Pistolas e Subs": {"percepcao": 15, "destreza": 10},
+        "Rifles e Escopetas": {"percepcao": 30, "forca": 20},
+        "Snipers de Precisão": {"percepcao": 50, "destreza": 25},
+        "Armas Pesadas (M60, RPG)": {"forca": 40, "vigor": 30}
     },
     "utilitarios": {
-        "Gazuas Simples": "15 Destreza",
-        "Hackers Portáteis": "25 Inteligência",
-        "Explosivos C4": "50 Inteligência / 30 Destreza",
-        "Primeiros Socorros Basico": "10 Inteligência",
-        "Primeiros Socorros Medios": "20 Inteligência",
-        "Primeiros Socorros Avançados": "30 Inteligência"
-
+        "Gazuas Simples": {"destreza": 15},
+        "Hackers Portáteis": {"inteligencia": 25},
+        "Explosivos C4": {"inteligencia": 50, "destreza": 30},
+        "Primeiros Socorros Basico": {"inteligencia": 10},
+        "Primeiros Socorros Medios": {"inteligencia": 20},
+        "Primeiros Socorros Avançados": {"inteligencia": 30}
     },
     "sobrevivencia": {
-        "Caça e Pesca": "10 Percepção / 5 Destreza",
-        "Escaladas": "15 Destreza / 20 Força",
-        "Intimidar NPCs": "40 Carisma",
-        "Aprendizado com Tecnologia": "20 Inteligência",
-        "Utilização de Ferramentas Basicas": "10 Inteligência"
+        "Caça e Pesca": {"percepcao": 10, "destreza": 5},
+        "Escaladas": {"destreza": 15, "forca": 20},
+        "Intimidar NPCs": {"carisma": 40},
+        "Aprendizado com Tecnologia": {"inteligencia": 20},
+        "Utilização de Ferramentas Basicas": {"inteligencia": 10}
     },
     "aprendizado_e_craft": {
-    "Craft Nível Básico (Itens Improvisados)": "15 Inteligência",
-    "Craft Nível Médio (Mecânica e Eletrónica)": "30 Inteligência",
-    "Craft Nível Avançado (Alta Tecnologia e Armas)": "50 Inteligência"
+        "Craft Nível Básico": {"inteligencia": 15},
+        "Craft Nível Médio": {"inteligencia": 30},
+        "Craft Nível Avançado": {"inteligencia": 50}
     }
 }

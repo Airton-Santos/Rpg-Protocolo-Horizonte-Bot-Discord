@@ -1,0 +1,68 @@
+{
+    "estagiario_mercenario": {
+        "nome": "Estagiário de Mercenário",
+        "descricao": "Treinamento básico em combate e táticas de força.",
+        "bonus": {"forca": 6, "vigor": 4},
+        "itens_iniciais": {"Faca Cega": 1, "Bandagem": 1}
+    },
+    "estagiario_medico": {
+        "nome": "Estagiário de Médico",
+        "descricao": "Aprendiz de medicina focado em Primeiros Socorros.",
+        "bonus": {"inteligencia": 6, "percepcao": 4},
+        "itens_iniciais": {"Maleta de Primeiros Socorros": 1, "Gaze": 1}
+    },
+    "estagiario_engenheiro": {
+        "nome": "Estagiário de Engenheiro",
+        "descricao": "Auxiliar de manutenção e reparos técnicos.",
+        "bonus": {"inteligencia": 5, "destreza": 5},
+        "itens_iniciais": {"Chave Inglesa": 1, "Parafusos": 1}
+    },
+    "estagiario_piloto": {
+        "nome": "Estagiário de Piloto",
+        "descricao": "Aprendiz de direção defensiva e mecânica básica.",
+        "bonus": {"destreza": 6, "percepcao": 4},
+        "itens_iniciais": {"Manual de pilotagem": 1}
+    },
+    "estagiario_cientista": {
+        "nome": "Estagiário de Cientista",
+        "descricao": "Assistente de laboratório focado em análise de dados.",
+        "bonus": {"inteligencia": 10},
+        "itens_iniciais": {"Caderno de Anotações": 1, "Lupa": 1}
+    },
+    "estagiario_atirador": {
+        "nome": "Estagiário de Atirador",
+        "descricao": "Treinando postura e estabilidade de mira.",
+        "bonus": {"percepcao": 7, "destreza": 3},
+        "itens_iniciais": {"Óculos de Proteção": 1, "Abafador de som": 1}
+    },
+    "estagiario_demolicao": {
+        "nome": "Estagiário de Demolição",
+        "descricao": "Aprendiz no manuseio de substâncias instáveis.",
+        "bonus": {"destreza": 5, "inteligencia": 5},
+        "itens_iniciais": {"Isqueiro": 1, "Fio de cobre 5m": 1}
+    },
+    "estagiario_seguranca": {
+        "nome": "Estagiário de Segurança",
+        "descricao": "Aprendendo técnicas de imobilização e guarda.",
+        "bonus": {"vigor": 6, "forca": 4},
+        "itens_iniciais": {"Cassetete de Borracha": 1, "Apito": 1}
+    },
+    "estagiario_investigador": {
+        "nome": "Estagiário de Investigador",
+        "descricao": "Auxiliar na coleta de evidências e busca de pistas.",
+        "bonus": {"percepcao": 8, "inteligencia": 2},
+        "itens_iniciais": {"Câmera Fotográfica Velha": 1, "Lanterna UV": 1}
+    },
+    "estudante": {
+        "nome": "Estudante",
+        "descricao": "Dedicado aos estudos gerais, possui potencial intelectual.",
+        "bonus": {"inteligencia": 5, "carisma": 5},
+        "itens_iniciais": {"Mochila Escolar": 1}
+    },
+    "desempregado": {
+        "nome": "Desempregado",
+        "descricao": "Alguém que viveu nas ruas e aprendeu a se virar.",
+        "bonus": {"vigor": 5, "percepcao": 5},
+        "itens_iniciais": {}
+    }
+}
