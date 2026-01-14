@@ -4,6 +4,7 @@ config.py
 
 # Banco de dados (O Railway usará o Volume)
 database/fichas.json
+database/items.json
 
 # Python
 __pycache__/

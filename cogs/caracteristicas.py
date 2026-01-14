@@ -2,14 +2,19 @@ import discord
 from discord.ext import commands
 from utils.db_manager import carregar_fichas, salvar_fichas, carregar_caracteristicas
 
-# Tabela de exclusão mútua (Nomes conforme estão nos arquivos JSON)
+# Tabela de exclusão mútua (Nomes EXATAMENTE como aparecem no JSON)
 CONFLITOS = {
-    "Atleta": ["Sedentário"],
+    "Atleta": ["Sedentário", "Asmático"],
     "Sedentário": ["Atleta"],
+    "Asmático": ["Atleta"],
     "Burrice": ["Inteligência Avançada"],
     "Inteligência Avançada": ["Burrice"],
-    "anti-social": ["extrovertido"],
-    "extrovertido": ["anti-social"]
+    "Anti-Social": ["Extrovertido"],
+    "Extrovertido": ["Anti-Social"],
+    "Hemofílico": ["Cura Rápida"],
+    "Cura Rápida": ["Hemofílico"],
+    "Miopia": ["Sentidos Aguçados"],
+    "Sentidos Aguçados": ["Miopia"]
 }
 
 class MenuCaracteristicas(discord.ui.Select):

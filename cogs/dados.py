@@ -64,7 +64,7 @@ class Dados(commands.Cog):
     @commands.command(name="tfor")
     async def teste_forca(self, ctx):
         p = {"sedentário": (3, "Sedentário")}
-        b = {"lutador amador": (3, "Lutador Amador")}
+        b = {"lutador amador": (2, "Lutador Amador")}
         res, err = self.realizar_teste(str(ctx.author.id), "forca", p, b)
         if err: return await ctx.send(err)
         await self.enviar_embed(ctx, "💪 Teste de Força", 0xe67e22, res)
