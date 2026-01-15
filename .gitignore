@@ -1,5 +1,4 @@
 # Configurações e Tokens
-config.py
 .env
 
 # Banco de dados (O Railway usará o Volume)
