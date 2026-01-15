@@ -3,7 +3,6 @@
     "covarde": {"nome": "Covarde", "custo": 3, "desc": "Entra em pânico ao ver sangue ou perigo."},
     "miopia": {"nome": "Miopia", "custo": 2, "desc": "Penalidade à distância sem óculos."},
     "barulhento": {"nome": "Barulhento", "custo": 3, "desc": "Faz mais barulho e derruba objetos."},
-    "cunhado_de_ouro": {"nome": "Cunhado de Ouro", "custo": 2, "desc": "Carrega um NPC dependente que não ajuda."},
     "sedentario": {"nome": "Sedentário", "custo": 4, "desc": "Menos força e fôlego curtíssimo."},
     "sono_pesado": {"nome": "Sono Pesado", "custo": 2, "desc": "Difícil de acordar com barulhos."},
     "pavio_curto": {"nome": "Pavio Curto", "custo": 2, "desc": "Penalidade em paciência ou diplomacia."},
