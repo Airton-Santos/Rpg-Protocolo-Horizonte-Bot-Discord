@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from utils.db_manager import carregar_fichas, salvar_fichas
 
-# --- MODAL: A caixinha que aparece para digitar o número ---
+# --- MODAL ATUALIZADO COM TRAVA DE 50 PONTOS ---
 class ModalQuantidade(discord.ui.Modal, title="Distribuir Pontos"):
     quantidade = discord.ui.TextInput(
         label="Quanto quer adicionar?",
@@ -22,15 +22,26 @@ class ModalQuantidade(discord.ui.Modal, title="Distribuir Pontos"):
             fichas = carregar_fichas()
             ficha = fichas[self.usuario_id]
             
-            pontos_atuais = ficha["informacoes"]["pontos"]
+            pontos_disponiveis = ficha["informacoes"]["pontos"]
+            valor_atual_atributo = ficha["status"].get(self.atributo, 0)
 
+            # 1. Verifica se o valor é positivo
             if valor <= 0:
                 return await interaction.response.send_message("❌ Digite um valor maior que 0!", ephemeral=True)
             
-            if pontos_atuais < valor:
-                return await interaction.response.send_message(f"❌ Você só tem {pontos_atuais} pontos!", ephemeral=True)
+            # 2. Verifica se o player tem pontos suficientes para gastar
+            if pontos_disponiveis < valor:
+                return await interaction.response.send_message(f"❌ Você só tem {pontos_disponiveis} pontos!", ephemeral=True)
 
-            # Atualiza os dados
+            # 3. VERIFICAÇÃO DO CAP DE 50 PONTOS
+            if valor_atual_atributo + valor > 50:
+                restante_para_50 = 50 - valor_atual_atributo
+                if restante_para_50 <= 0:
+                    return await interaction.response.send_message(f"❌ Seu status de **{self.atributo.upper()}** já está no nível máximo (50)!", ephemeral=True)
+                else:
+                    return await interaction.response.send_message(f"❌ Limite excedido! Você só pode adicionar mais **{restante_para_50}** pontos em {self.atributo.upper()} para chegar ao máximo de 50.", ephemeral=True)
+
+            # Atualiza os dados se passar em todas as checagens
             ficha["status"][self.atributo] += valor
             ficha["informacoes"]["pontos"] -= valor
             salvar_fichas(fichas)

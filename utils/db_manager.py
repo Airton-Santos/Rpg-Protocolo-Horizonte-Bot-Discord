@@ -15,8 +15,28 @@ def carregar_fichas():
         return json.load(f)
 
 def salvar_fichas(dados):
+    # Garante que 'dados' seja um dicionário, mesmo que vazio
+    if dados is None:
+        dados = {}
+    
     with open(FICHA_PATH, "w", encoding="utf-8") as f:
         json.dump(dados, f, indent=4, ensure_ascii=False)
+
+def deletar_fichas(usuario_id):
+    """Remove a ficha de um usuário e garante a integridade do JSON."""
+    fichas = carregar_fichas()
+    uid = str(usuario_id)
+    
+    if uid in fichas:
+        del fichas[uid]
+        
+        # Se após deletar não sobrar nada, garantimos que salvamos um dicionário vazio
+        if not fichas:
+            fichas = {}
+            
+        salvar_fichas(fichas)
+        return True
+    return False
 
 def carregar_caracteristicas(tipo):
     """Carrega vantagens ou desvantagens."""
