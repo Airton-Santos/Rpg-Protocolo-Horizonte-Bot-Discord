@@ -8,27 +8,31 @@ class Dados(commands.Cog):
         self.bot = bot
 
     def realizar_teste(self, uid, atributo_alvo, penalidades_map, bonus_map):
+        # Puxa do Supabase
         fichas = carregar_fichas()
         if uid not in fichas:
-            return None, "❌ Ficha não encontrada!"
+            return None, "❌ Registro bio-sinergia não encontrado! Use `!criar`."
 
         ficha = fichas[uid]
-        valor_base = ficha["status"].get(atributo_alvo, 0)
+        # .get() com padrão 0 evita erros se o atributo não estiver definido
+        status = ficha.get("status", {})
+        valor_base = status.get(atributo_alvo, 0)
+        
         dado = random.randint(1, 20)
         modificador = 0
         logs_efeitos = []
 
-        # Listas do player para comparação (Lower case para evitar erro de digitação)
+        # Listas do player usando .get() para evitar erros de chave inexistente
         player_desv = [d.lower() for d in ficha.get("desvantagens", [])]
         player_vant = [v.lower() for v in ficha.get("vantagens", [])]
         
-        # 1. Processar Desvantagens (Penalidades - SUBTRAI)
+        # 1. Processar Desvantagens
         for desv_id, (valor, motivo) in penalidades_map.items():
             if desv_id.lower() in player_desv:
                 modificador -= valor
                 logs_efeitos.append(f"📉 {motivo}: -{valor}")
 
-        # 2. Processar Vantagens (Bônus - SOMA)
+        # 2. Processar Vantagens
         for vant_id, (valor, motivo) in bonus_map.items():
             if vant_id.lower() in player_vant:
                 modificador += valor
@@ -36,8 +40,11 @@ class Dados(commands.Cog):
 
         total_final = dado + valor_base + modificador
         
+        # Nome do personagem ou fallback
+        nome_rp = ficha.get("informacoes", {}).get("nome", "Desconhecido")
+        
         return {
-            "nome": ficha["informacoes"]["nome"],
+            "nome": nome_rp,
             "dado": dado,
             "base": valor_base,
             "mod": modificador,
@@ -54,13 +61,16 @@ class Dados(commands.Cog):
             info_txt += f"\n⚙️ Modificadores: `{' ' if res['mod'] < 0 else '+'}{res['mod']}`"
             
         embed.add_field(name="Detalhes", value=info_txt, inline=True)
-        embed.add_field(name="RESULTADO", value=f"🏆 **{res['total']}**", inline=True)
+        # Destaque para o resultado final
+        embed.add_field(name="RESULTADO FINAL", value=f"🏆 **{res['total']}**", inline=True)
 
         if res['logs']:
             embed.add_field(name="Efeitos de Traits", value="\n".join(res['logs']), inline=False)
         
+        embed.set_footer(text="Projeto Fenix | Vitória de Santo Antão 2030")
         await ctx.send(embed=embed)
 
+    # --- COMANDOS DE TESTE ---
     @commands.command(name="tfor")
     async def teste_forca(self, ctx):
         p = {"sedentário": (3, "Sedentário")}

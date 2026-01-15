@@ -1,7 +1,7 @@
-import discord # Para criar as mensagens bonitas (Embeds)
-from discord.ext import commands # Para registrar o comando no Bot
-import json # Para conseguir ler o seu arquivo requisitos.json
-from utils.db_manager import carregar_fichas # Para buscar a ficha do player
+import discord
+from discord.ext import commands
+import json
+from utils.db_manager import carregar_fichas
 
 class Conhecimentos(commands.Cog):
     def __init__(self, bot):
@@ -9,50 +9,50 @@ class Conhecimentos(commands.Cog):
 
     @commands.command(name="conhecimentos")
     async def verificar_conhecimentos(self, ctx):
-        #carregar ficha do player
+        # 1. Busca os dados no Supabase
         fichas = carregar_fichas()
         uid = str(ctx.author.id)
 
         if uid not in fichas:
-            return await ctx.send("❌ Crie sua ficha primeiro!")
+            return await ctx.send("❌ Você não possui um registro no sistema. Use `!criar`.")
         
         ficha = fichas[uid]
-        status_player = ficha["status"]
+        # Usamos .get() por segurança
+        status_player = ficha.get("status", {})
+        nome_rp = ficha.get("informacoes", {}).get("nome", "Desconhecido")
 
-        # Carregar dados de requisitos
-        with open("data/requisitos.json", "r", encoding="utf-8") as f:
-            requisitos = json.load(f)
+        # 2. Carrega o arquivo local de requisitos
+        try:
+            with open("data/requisitos.json", "r", encoding="utf-8") as f:
+                requisitos = json.load(f)
+        except FileNotFoundError:
+            return await ctx.send("❌ Erro: O arquivo de requisitos do sistema não foi encontrado.")
             
         embed = discord.Embed(
-            title=f"📚 Conhecimentos de {ficha['informacoes']['nome']}",
-            description="Aqui estão os conhecimentos que seu personagem possui com base nos atributos:",
-            color=0x00ff00 # Cor verde
+            title=f"📚 Conhecimentos: {nome_rp}",
+            description="Escaneando habilidades compatíveis com sua biometria atual...",
+            color=0x00ff00 # Verde Bio-Sinergia
         )
 
-       # Para cada categoria e os itens dentro dela...
+        # 3. Lógica de comparação (Onde a mágica acontece)
         for categoria, itens in requisitos.items():
-            liberados = [] # Lista limpa para cada nova categoria
+            liberados = [] 
 
-            # ATENÇÃO: Este 'for' abaixo deve estar alinhado (identado) dentro do de cima!
             for nome_item, exigencias in itens.items():
-                
-                # Vamos assumir que ele pode usar até provar o contrário
                 pode_usar = True 
                 
-                # Agora checamos cada requisito do item (ex: {"forca": 10})
+                # Checa cada requisito (ex: {"inteligencia": 15})
                 for atributo, valor_necessario in exigencias.items():
-                    # Se o player tiver menos do que o necessário, ele não pode usar
+                    # Se o player não tiver o atributo ou o valor for menor que o necessário
                     if status_player.get(atributo, 0) < valor_necessario:
                         pode_usar = False
-                        break # Não precisa checar o resto deste item
+                        break 
                 
-                # Se após checar todos os atributos ele ainda puder usar...
                 if pode_usar:
-                    liberados.append(f"✅ {nome_item}")
+                    liberados.append(f"🔹 {nome_item}")
 
-            # Agora, se houver itens liberados, adicionamos ao Embed
+            # Se houver itens liberados na categoria, adiciona ao Embed
             if liberados:
-                # O title() deixa "armas_fogo" como "Armas Fogo"
                 nome_categoria = categoria.replace("_", " ").title()
                 embed.add_field(
                     name=f"➔ {nome_categoria}", 
@@ -60,9 +60,12 @@ class Conhecimentos(commands.Cog):
                     inline=False
                 )
 
-        # Por fim, enviamos a mensagem
+        if not embed.fields:
+            embed.description = "⚠️ **Nenhum conhecimento técnico detectado.**\nAumente seus atributos para liberar novas habilidades."
+
+        embed.set_footer(text="Sincronizado com Protocolo Fenix | Vitória de Santo Antão 2030")
+        
         await ctx.send(embed=embed)
 
-# ESTA PARTE ABAIXO É O QUE FALTA:
 async def setup(bot):
     await bot.add_cog(Conhecimentos(bot))

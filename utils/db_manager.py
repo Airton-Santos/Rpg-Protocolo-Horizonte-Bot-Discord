@@ -1,5 +1,6 @@
 import os
 from supabase import create_client, Client
+import json  # <--- ADICIONE ESTA LINHA AQUI!
 
 # --- CONFIGURAÇÃO DO SUPABASE ---
 # Essas variáveis você deve colocar no painel do Railway (Variables)
@@ -74,3 +75,13 @@ def salvar_itens(dados):
         supabase.table("itens_globais").upsert({"id": 1, "dados": dados}).execute()
     except:
         pass
+
+def carregar_caracteristicas(tipo):
+    # tipo será 'vantagens' ou 'desvantagens'
+    # Esse arquivo fica na pasta 'data' dentro do seu projeto no Railway
+    try:
+        with open(f"data/{tipo}.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Erro ao ler catálogo de {tipo}: {e}")
+        return {}
