@@ -1,39 +1,55 @@
 import discord
 from discord.ext import commands
 import os
-import config # Importa o seu arquivo config.py
+import asyncio
 
-
+# 1. Configuração de Intenções
 intents = discord.Intents.default()
 intents.message_content = True  # Permite que o bot leia o conteúdo das mensagens
 intents.members = True          # Permite que o bot veja quem entrou no servidor
 
+# 2. Inicialização do Bot usando Variáveis de Ambiente (Railway)
+# Se não encontrar a variável PREFIXO, ele usará "!" por padrão
+prefixo_do_sistema = os.getenv("PREFIXO", "!")
+bot = commands.Bot(command_prefix=prefixo_do_sistema, intents=intents)
 
-bot = commands.Bot(command_prefix=config.PREFIXO, intents=intents)
-
-
-# Em vez de escrever tudo aqui, o bot vai na pasta /cogs e lê os arquivos .py
+# 3. Carregamento Automático de Cogs
 async def load_extensions():
-    for filename in os.listdir('./cogs'):
-        if filename.endswith('.py'): # Verifica se o arquivo é um módulo Python
-            # Isso transforma 'ficha.py' em 'cogs.ficha' e carrega no bot
-            await bot.load_extension(f'cogs.{filename[:-3]}')
-            print(f'Módulo carregado: {filename}')
+    if os.path.exists('./cogs'):
+        for filename in os.listdir('./cogs'):
+            if filename.endswith('.py'):
+                try:
+                    await bot.load_extension(f'cogs.{filename[:-3]}')
+                    print(f'✅ Módulo carregado: {filename}')
+                except Exception as e:
+                    print(f'❌ Erro ao carregar {filename}: {e}')
+    else:
+        print("⚠️ Pasta ./cogs não encontrada no servidor!")
 
-
-# Roda uma única vez quando o bot consegue se conectar ao Discord
+# 4. Evento: Bot Online
 @bot.event
 async def on_ready():
-    print(f'--- Gerenciador {bot.user.name} online! ---')
-    print(f'ID do Bot: {bot.user.id}')
+    print(f'\n--- 🟢 SISTEMA FENIX ONLINE ---')
+    print(f'Identidade: {bot.user.name}')
+    print(f'Prefixo: {prefixo_do_sistema}')
+    print(f'--- Protocolo Horizonte 2030 ---\n')
 
-# O ponto de entrada que inicia o processo assíncrono
+# 5. Ponto de Entrada Principal
 async def main():
     async with bot:
-        await load_extensions() # Primeiro carrega os módulos
-        await bot.start(config.TOKEN) # Depois liga o bot com o Token
+        await load_extensions()
+        
+        # Puxa o TOKEN das variáveis que você configurou no painel do Railway
+        token_servidor = os.getenv("TOKEN")
+        
+        if token_servidor:
+            await bot.start(token_servidor)
+        else:
+            print("❌ ERRO: Variável 'TOKEN' não encontrada nas configurações do Railway!")
 
 # Rodar o projeto
-import asyncio
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Saindo...")
