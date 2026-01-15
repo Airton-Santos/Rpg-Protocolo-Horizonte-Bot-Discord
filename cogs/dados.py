@@ -8,46 +8,47 @@ class Dados(commands.Cog):
         self.bot = bot
 
     def realizar_teste(self, uid, atributo_alvo, penalidades_map, bonus_map):
-        # Puxa do Supabase
         fichas = carregar_fichas()
         if uid not in fichas:
             return None, "❌ Registro bio-sinergia não encontrado! Use `!criar`."
 
         ficha = fichas[uid]
-        # .get() com padrão 0 evita erros se o atributo não estiver definido
         status = ficha.get("status", {})
-        valor_base = status.get(atributo_alvo, 0)
+        
+        # --- LÓGICA DE STATUS -> BÔNUS (+1 a cada 10) ---
+        valor_bruto = status.get(atributo_alvo, 0)
+        bonus_pelo_status = valor_bruto // 10  # Divisão inteira: 50/10 = 5 | 25/10 = 2
         
         dado = random.randint(1, 20)
-        modificador = 0
+        modificador_traits = 0
         logs_efeitos = []
 
-        # Listas do player usando .get() para evitar erros de chave inexistente
         player_desv = [d.lower() for d in ficha.get("desvantagens", [])]
         player_vant = [v.lower() for v in ficha.get("vantagens", [])]
         
-        # 1. Processar Desvantagens
+        # 1. Processar Desvantagens (Traits)
         for desv_id, (valor, motivo) in penalidades_map.items():
             if desv_id.lower() in player_desv:
-                modificador -= valor
+                modificador_traits -= valor
                 logs_efeitos.append(f"📉 {motivo}: -{valor}")
 
-        # 2. Processar Vantagens
+        # 2. Processar Vantagens (Traits)
         for vant_id, (valor, motivo) in bonus_map.items():
             if vant_id.lower() in player_vant:
-                modificador += valor
+                modificador_traits += valor
                 logs_efeitos.append(f"📈 {motivo}: +{valor}")
 
-        total_final = dado + valor_base + modificador
+        # CÁLCULO FINAL: Dado + Bônus do Atributo + Modificadores de Vantagem/Desvantagem
+        total_final = dado + bonus_pelo_status + modificador_traits
         
-        # Nome do personagem ou fallback
         nome_rp = ficha.get("informacoes", {}).get("nome", "Desconhecido")
         
         return {
             "nome": nome_rp,
             "dado": dado,
-            "base": valor_base,
-            "mod": modificador,
+            "valor_bruto": valor_bruto,
+            "bonus_status": bonus_pelo_status,
+            "mod_traits": modificador_traits,
             "total": total_final,
             "logs": logs_efeitos
         }, None
@@ -56,16 +57,19 @@ class Dados(commands.Cog):
         embed = discord.Embed(title=titulo, color=cor)
         embed.set_author(name=f"Personagem: {res['nome']}")
         
-        info_txt = f"🎲 Dado: `{res['dado']}`\n📊 Atributo: `{res['base']}`"
-        if res['mod'] != 0:
-            info_txt += f"\n⚙️ Modificadores: `{' ' if res['mod'] < 0 else '+'}{res['mod']}`"
+        # Texto detalhando a soma para transparência com o jogador
+        detalhes = f"🎲 Dado: `{res['dado']}`\n"
+        detalhes += f"📊 Bônus de Atributo: `+{res['bonus_status']}` (Status: {res['valor_bruto']})\n"
+        
+        if res['mod_traits'] != 0:
+            sinal = "+" if res['mod_traits'] > 0 else ""
+            detalhes += f"⚙️ Mod. Traits: `{sinal}{res['mod_traits']}`"
             
-        embed.add_field(name="Detalhes", value=info_txt, inline=True)
-        # Destaque para o resultado final
+        embed.add_field(name="Decomposição", value=detalhes, inline=True)
         embed.add_field(name="RESULTADO FINAL", value=f"🏆 **{res['total']}**", inline=True)
 
         if res['logs']:
-            embed.add_field(name="Efeitos de Traits", value="\n".join(res['logs']), inline=False)
+            embed.add_field(name="Efeitos Ativos", value="\n".join(res['logs']), inline=False)
         
         embed.set_footer(text="Projeto Fenix | Vitória de Santo Antão 2030")
         await ctx.send(embed=embed)

@@ -18,6 +18,7 @@ class Utilitarios(commands.Cog):
             name="👤 Identidade e Status",
             value=(
                 "`!criar` - Inicia a criação da sua ficha.\n"
+                "`!perfil` - Exibe ssuas informações.\n"
                 "`!status` - Exibe seus atributos e informações.\n"
                 "`!profissao` - Escolhe seu estágio e ganha bônus.\n"
                 "`!mochila` - Verifica seu inventário atual.\n"
