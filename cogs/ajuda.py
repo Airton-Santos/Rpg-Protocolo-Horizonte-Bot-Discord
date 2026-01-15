@@ -5,7 +5,7 @@ class Utilitarios(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="ajuda", aliases=["comandos", "help"])
+    @commands.command(name="ajuda", aliases=["comandos"])
     async def comandos_lista(self, ctx):
         embed = discord.Embed(
             title="📟 Terminal Bio-Sinergia | Protocolo Horizonte",
