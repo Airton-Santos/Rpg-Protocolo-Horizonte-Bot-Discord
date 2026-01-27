@@ -10,5 +10,6 @@
     "hemofilico": {"nome": "Hemofílico", "custo": 4, "desc": "Sangra fácil e demora a estancar."},
     "burrice": {"nome": "Burrice", "custo": 5, "desc": "Dificuldade extrema de raciocínio; penalidade pesada em Inteligência."},
     "anti-social": {"nome": "Anti-Social", "custo": 4, "desc": "Dificuldade em interações sociais; penalidade em Carisma."},
-    "fumante": {"nome": "Fumante", "custo": 2, "desc": "Necessita fumar regularmente para evitar ansiedade."}
+    "fumante": {"nome": "Fumante", "custo": 2, "desc": "Necessita fumar regularmente para evitar ansiedade."},
+    "cafeina": {"nome": "Cafeína", "custo": 4, "desc": "Necessita tomar cafeína regularmente, mas quando toma se caga todo e quando não toma fica com dor de cabeça e ansioso."}
 }
