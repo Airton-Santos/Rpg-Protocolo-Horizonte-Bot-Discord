@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from utils.db_manager import carregar_fichas, salvar_fichas, carregar_caracteristicas
 
-# Tabela de exclusão mútua (Nomes EXATAMENTE como aparecem no JSON)
+# Tabela de exclusão mútua
 CONFLITOS = {
     "Atleta": ["Sedentário", "Asmático"],
     "Sedentário": ["Atleta"],
@@ -37,7 +37,6 @@ class MenuCaracteristicas(discord.ui.Select):
         if str(interaction.user.id) != self.usuario_id:
             return await interaction.response.send_message("❌ Esta tela não é sua!", ephemeral=True)
 
-        # 1. Carregar do Supabase no momento do clique (Dados mais recentes)
         fichas = carregar_fichas()
         if self.usuario_id not in fichas:
             return await interaction.response.send_message("❌ Ficha não encontrada!", ephemeral=True)
@@ -46,40 +45,52 @@ class MenuCaracteristicas(discord.ui.Select):
         escolha_chave = self.values[0]
         item = self.opcoes_json[escolha_chave]
         nome_escolha = item["nome"]
+        custo = item["custo"]
 
-        # Garantir listas básicas
         if "vantagens" not in ficha: ficha["vantagens"] = []
         if "desvantagens" not in ficha: ficha["desvantagens"] = []
         if "pontos_caract" not in ficha["informacoes"]: ficha["informacoes"]["pontos_caract"] = 0
 
-        # 2. VERIFICAÇÃO DE CONFLITOS
-        todas_caract = ficha["vantagens"] + ficha["desvantagens"]
+        # --- LÓGICA DE SELECIONAR / DESELECIONAR ---
+        lista_atual = ficha.get(self.tipo, [])
+
+        if nome_escolha in lista_atual:
+            # SE JÁ TEM, ENTÃO O PLAYER QUER TIRAR (DESELECIONAR)
+            ficha[self.tipo].remove(nome_escolha)
+            
+            if self.tipo == "vantagens":
+                ficha["informacoes"]["pontos_caract"] += custo # Devolve os pontos gastos
+            else:
+                ficha["informacoes"]["pontos_caract"] -= custo # Tira os pontos ganhos
+            
+            status_msg = f"➖ Removido: **{nome_escolha}**"
         
-        if nome_escolha in CONFLITOS:
-            for conflito in CONFLITOS[nome_escolha]:
-                if conflito in todas_caract:
-                    return await interaction.response.send_message(
-                        f"❌ Conflito biológico! Você não pode ter **{nome_escolha}** e **{conflito}**.", 
-                        ephemeral=True
-                    )
-
-        # 3. Verificação de Limite e Repetição
-        if len(ficha.get(self.tipo, [])) >= 5:
-            return await interaction.response.send_message(f"❌ Limite neural de 5 {self.tipo} atingido!", ephemeral=True)
-
-        if nome_escolha in ficha.get(self.tipo, []):
-            return await interaction.response.send_message(f"❌ Você já possui {nome_escolha} em seu registro!", ephemeral=True)
-
-        # 4. Processamento de Pontos
-        custo = item["custo"]
-        if self.tipo == "vantagens":
-            ficha["informacoes"]["pontos_caract"] -= custo
         else:
-            ficha["informacoes"]["pontos_caract"] += custo
+            # SE NÃO TEM, ENTÃO O PLAYER QUER ADICIONAR
+            
+            # 1. Verificação de Conflitos
+            todas = ficha["vantagens"] + ficha["desvantagens"]
+            if nome_escolha in CONFLITOS:
+                for conflito in CONFLITOS[nome_escolha]:
+                    if conflito in todas:
+                        return await interaction.response.send_message(
+                            f"❌ Conflito! Você não pode ter **{nome_escolha}** e **{conflito}**.", ephemeral=True
+                        )
 
-        ficha[self.tipo].append(nome_escolha)
+            # 2. Verificação de Limite
+            if len(lista_atual) >= 5:
+                return await interaction.response.send_message(f"❌ Limite de 5 {self.tipo} atingido!", ephemeral=True)
 
-        # 5. SALVAR NO SUPABASE (Apenas a ficha do player)
+            # 3. Adicionar e Ajustar Pontos
+            if self.tipo == "vantagens":
+                ficha["informacoes"]["pontos_caract"] -= custo
+            else:
+                ficha["informacoes"]["pontos_caract"] += custo
+
+            ficha[self.tipo].append(nome_escolha)
+            status_msg = f"✅ Injetado: **{nome_escolha}**"
+
+        # Salvar no Banco
         try:
             salvar_fichas({self.usuario_id: ficha})
             
@@ -87,12 +98,12 @@ class MenuCaracteristicas(discord.ui.Select):
                 f"👤 **Personagem:** {ficha['informacoes']['nome']}\n"
                 f"⚖️ **Saldo Bio-Sinergia:** `{ficha['informacoes']['pontos_caract']}`\n"
                 f"📊 **Vantagens:** {len(ficha['vantagens'])}/5 | **Desvantagens:** {len(ficha['desvantagens'])}/5\n\n"
-                f"✅ Injetado com sucesso: **{nome_escolha}**"
+                f"{status_msg}"
             )
             
             await interaction.response.edit_message(embed=self.pai_view.embed, view=self.pai_view)
         except Exception as e:
-            await interaction.response.send_message(f"❌ Erro ao sincronizar com o banco: {e}", ephemeral=True)
+            await interaction.response.send_message(f"❌ Erro ao salvar: {e}", ephemeral=True)
 
 class ViewCaracteristicas(discord.ui.View):
     def __init__(self, usuario_id, embed):
@@ -111,12 +122,18 @@ class ViewCaracteristicas(discord.ui.View):
         if str(interaction.user.id) != self.usuario_id:
             return await interaction.response.send_message("❌ Esta tela não é sua!", ephemeral=True)
 
+        # Checar se o saldo não está negativo antes de fechar
+        fichas = carregar_fichas()
+        ficha = fichas.get(self.usuario_id)
+        if ficha["informacoes"].get("pontos_caract", 0) < 0:
+            return await interaction.response.send_message("❌ Seu saldo está negativo! Remova vantagens ou adicione desvantagens.", ephemeral=True)
+
         for item in self.children:
             item.disabled = True
         
         self.embed.color = discord.Color.dark_purple()
         self.embed.title = "🔒 Registro Biométrico Travado"
-        self.embed.set_footer(text="Protocolo Fenix | Customização encerrada.")
+        self.embed.set_footer(text="Projeto Fenix | Sincronização Concluída.")
 
         await interaction.response.edit_message(embed=self.embed, view=self)
         self.stop()
@@ -131,7 +148,7 @@ class Caracteristicas(commands.Cog):
         fichas = carregar_fichas()
         
         if uid not in fichas:
-            return await ctx.send("❌ Crie sua ficha primeiro usando `!criar`!")
+            return await ctx.send("❌ Crie sua ficha primeiro!")
 
         ficha = fichas[uid]
         saldo = ficha["informacoes"].get("pontos_caract", 0)
@@ -144,7 +161,7 @@ class Caracteristicas(commands.Cog):
                          f"📊 **Desvantagens:** {len(ficha.get('desvantagens', []))}/5"),
             color=0x9b59b6
         )
-        embed.set_footer(text="Selecione as características nos menus abaixo.")
+        embed.set_footer(text="Clique em uma opção já selecionada para removê-la.")
         
         view = ViewCaracteristicas(uid, embed)
         await ctx.send(embed=embed, view=view)
