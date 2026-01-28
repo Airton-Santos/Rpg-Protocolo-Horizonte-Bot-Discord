@@ -36,6 +36,7 @@ class Utilitarios(commands.Cog):
             value=(
                 "`/distribuir` - Painel para gastar pontos de atributos.\n"
                 "`/caracteristicas` - Menu de Vantagens e Desvantagens."
+                "`/conhecimentos -  Menu para ver seus conhecimentos com base em seus status`"
             ),
             inline=False
         )
@@ -58,7 +59,7 @@ class Utilitarios(commands.Cog):
                     "`/addpontos` - Dá pontos de evolução.\n"
                     "`/give` - Adiciona item ao inventário.\n"
                     "`/take` - Remove item do inventário.\n"
-                    "`/delete_ficha` - Apaga permanentemente a ficha."
+                    "`/delete` - Apaga permanentemente a ficha."
                 ),
                 inline=False
             )
