@@ -8,8 +8,7 @@ intents = discord.Intents.default()
 intents.message_content = True  # Permite que o bot leia o conteúdo das mensagens
 intents.members = True          # Permite que o bot veja quem entrou no servidor
 
-# 2. Inicialização do Bot usando Variáveis de Ambiente (Railway)
-# Se não encontrar a variável PREFIXO, ele usará "!" por padrão
+# 2. Inicialização do Bot
 prefixo_do_sistema = os.getenv("PREFIXO", "!")
 bot = commands.Bot(command_prefix=prefixo_do_sistema, intents=intents)
 
@@ -24,14 +23,25 @@ async def load_extensions():
                 except Exception as e:
                     print(f'❌ Erro ao carregar {filename}: {e}')
     else:
-        print("⚠️ Pasta ./cogs não encontrada no servidor!")
+        print("⚠️ Pasta ./cogs não encontrada!")
 
-# 4. Evento: Bot Online
+# 4. Evento: Bot Online e Sincronização
 @bot.event
 async def on_ready():
     print(f'\n--- 🟢 SISTEMA FENIX ONLINE ---')
     print(f'Identidade: {bot.user.name}')
     print(f'Prefixo: {prefixo_do_sistema}')
+    
+    # --- AJUSTE PARA SLASH COMMANDS ---
+    try:
+        # Isso registra os comandos "/" no servidor
+        synced = await bot.tree.sync()
+        print(f"🔄 Sincronizados {len(synced)} comandos de barra!")
+    except Exception as e:
+        print(f"❌ Erro ao sincronizar comandos: {e}")
+    
+    # Status visual do bot
+    await bot.change_presence(activity=discord.Game(name="Protocolo Horizonte 2030"))
     print(f'--- Protocolo Horizonte 2030 ---\n')
 
 # 5. Ponto de Entrada Principal
@@ -39,15 +49,13 @@ async def main():
     async with bot:
         await load_extensions()
         
-        # Puxa o TOKEN das variáveis que você configurou no painel do Railway
         token_servidor = os.getenv("TOKEN")
         
         if token_servidor:
             await bot.start(token_servidor)
         else:
-            print("❌ ERRO: Variável 'TOKEN' não encontrada nas configurações do Railway!")
+            print("❌ ERRO: Variável 'TOKEN' não encontrada!")
 
-# Rodar o projeto
 if __name__ == "__main__":
     try:
         asyncio.run(main())
