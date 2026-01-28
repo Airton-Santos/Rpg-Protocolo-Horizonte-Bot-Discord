@@ -10,7 +10,7 @@ class Interacoes(commands.Cog):
         self.bot = bot
         self.client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
         # ID do Senhor Airton (substitua pelo seu ID real do Discord)
-        self.ID_MESTRE = 123456789012345678 
+        self.ID_MESTRE = 465303026400231434 
 
     @commands.Cog.listener()
     async def on_message(self, message):

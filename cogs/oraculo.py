@@ -10,7 +10,7 @@ class Oraculo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # IMPORTANTE: Coloque aqui o ID do seu canal de mestre
-        self.ID_CANAL_MESTRE = 123456789012345678 
+        self.ID_CANAL_MESTRE = 465303026400231434 
         
         # Inicializa o cliente usando a API KEY do Grok que você tem no .env
         self.client_grok = Groq(api_key=os.getenv("GROK_API_KEY"))

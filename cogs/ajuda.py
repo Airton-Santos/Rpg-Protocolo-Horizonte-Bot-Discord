@@ -35,7 +35,7 @@ class Utilitarios(commands.Cog):
             name="⚙️ Evolução e Customização",
             value=(
                 "`/distribuir` - Painel para gastar pontos de atributos.\n"
-                "`/caracteristicas` - Menu de Vantagens e Desvantagens."
+                "`/caracteristicas` - Menu de Vantagens e Desvantagens.\n"
                 "`/conhecimentos -  Menu para ver seus conhecimentos com base em seus status`"
             ),
             inline=False
@@ -59,7 +59,7 @@ class Utilitarios(commands.Cog):
                     "`/addpontos` - Dá pontos de evolução.\n"
                     "`/give` - Adiciona item ao inventário.\n"
                     "`/take` - Remove item do inventário.\n"
-                    "`/delete` - Apaga permanentemente a ficha."
+                    "`/delete` - Apaga permanentemente a ficha.\n"
                     "`/setapocalipse -  seta o apocalipse no mundo (só para o mestre)`"
                 ),
                 inline=False
