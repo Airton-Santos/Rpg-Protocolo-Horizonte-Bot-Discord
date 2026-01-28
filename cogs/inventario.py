@@ -1,52 +1,62 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
-# Importamos apenas o carregar_fichas
 from utils.db_manager import carregar_fichas
 
 class Inventario(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="mochila", aliases=["inv", "inventario"])
-    async def ver_mochila(self, ctx):
-        uid = str(ctx.author.id)
+    @app_commands.command(name="mochila", description="Verifica o inventário e suprimentos atuais")
+    @app_commands.describe(alvo="Opcional: Marque um jogador para ver a mochila dele")
+    async def ver_mochila(self, interaction: discord.Interaction, alvo: discord.Member = None):
+        # Define quem é o dono da mochila (o autor ou o alvo marcado)
+        usuario = alvo or interaction.user
+        uid = str(usuario.id)
         
-        # O db_manager agora busca do Supabase
+        # O db_manager busca do Supabase
         fichas = carregar_fichas()
 
         if uid not in fichas:
-            return await ctx.send("❌ Você não possui uma ficha registrada no sistema central.")
+            msg = "❌ Você não possui uma ficha registrada." if alvo is None else f"❌ {usuario.display_name} não possui ficha registrada."
+            return await interaction.response.send_message(msg, ephemeral=True)
 
         ficha = fichas[uid]
-        # Pegamos o inventário ou um dicionário vazio se não existir
         inventario = ficha.get("inventario", {})
         nome_rp = ficha['informacoes'].get('nome', 'Desconhecido')
 
         embed = discord.Embed(
-            title=f"🎒 Mochila de {nome_rp}",
+            title=f"🎒 Mochila: {nome_rp}",
             description="Acessando banco de dados de suprimentos... 2030",
-            color=0x2ecc71 # Cor Verde para Inventário
+            color=0x2ecc71 # Verde Suprimento
         )
 
         if not inventario:
-            embed.description = "⚠️ **Sua mochila está vazia.**\nExplore Vitória de Santo Antão para encontrar suprimentos."
+            # Se for a própria mochila, dá o aviso de exploração
+            if alvo is None:
+                embed.description = "⚠️ **Sua mochila está vazia.**\nExplore a região para encontrar suprimentos."
+            else:
+                embed.description = f"⚠️ A mochila de **{usuario.display_name}** está vazia."
         else:
-            # Formata a lista de itens: "• 5x Bandagem"
-            # Adicionei uma ordenação simples para ficar mais bonito
-            lista_itens = "\n".join([f"🔹 **{qtd}x** {item}" for item, qtd in sorted(inventario.items())])
+            # Formata a lista de itens ordenando por nome
+            # Filtramos itens com quantidade 0 caso existam
+            itens_validos = {item: qtd for item, qtd in inventario.items() if qtd > 0}
             
-            # Limite de caracteres do Discord para Fields é 1024
-            if len(lista_itens) > 1024:
-                lista_itens = lista_itens[:1020] + "..."
+            if not itens_validos:
+                embed.description = "⚠️ Nenhum item funcional detectado."
+            else:
+                lista_itens = "\n".join([f"🔹 **{qtd}x** {item}" for item, qtd in sorted(itens_validos.items())])
                 
-            embed.add_field(name="📦 Itens Carregados", value=lista_itens, inline=False)
+                # Segurança contra estouro de caracteres do Discord
+                if len(lista_itens) > 1024:
+                    lista_itens = lista_itens[:1020] + "..."
+                    
+                embed.add_field(name="📦 Itens Carregados", value=lista_itens, inline=False)
 
         embed.set_footer(text="SISTEMA FENIX | Protocolo de Inventário")
         
-        # Se você tiver uma foto de mochila ou ícone do bot, pode colocar aqui:
-        # embed.set_thumbnail(url="link_da_imagem")
-
-        await ctx.send(embed=embed)
+        # Resposta pública se for sucesso, mas o erro de ficha é privado (ephemeral)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Inventario(bot))

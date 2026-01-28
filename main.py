@@ -2,18 +2,25 @@ import discord
 from discord.ext import commands
 import os
 import asyncio
+from dotenv import load_dotenv
+
+# Carrega as variáveis de ambiente
+load_dotenv()
 
 # 1. Configuração de Intenções
+# Reduzimos as intenções ao necessário para Slash Commands e Membros
 intents = discord.Intents.default()
-intents.message_content = True  # Permite que o bot leia o conteúdo das mensagens
-intents.members = True          # Permite que o bot veja quem entrou no servidor
+intents.members = True 
+# message_content pode ser False agora, economizando recursos do bot
+intents.message_content = False 
 
 # 2. Inicialização do Bot
-prefixo_do_sistema = os.getenv("PREFIXO", "!")
-bot = commands.Bot(command_prefix=prefixo_do_sistema, intents=intents)
+# Usamos um prefixo nulo/inválido já que o foco é apenas nos comandos "/"
+bot = commands.Bot(command_prefix=commands.when_mentioned, intents=intents)
 
 # 3. Carregamento Automático de Cogs
 async def load_extensions():
+    print('--- 📂 CARREGANDO PROTOCOLOS FENIX ---')
     if os.path.exists('./cogs'):
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
@@ -28,25 +35,25 @@ async def load_extensions():
 # 4. Evento: Bot Online e Sincronização
 @bot.event
 async def on_ready():
-    print(f'--- 🟢 SISTEMA FENIX ONLINE ---')
+    print(f'\n--- 🟢 SISTEMA FENIX ONLINE ---')
+    print(f'Identificado como: {bot.user.name}')
+    
     try:
-        # Isso força a atualização imediata dos comandos de barra
+        print("🔄 Sincronizando comandos de barra globais...")
+        # Sincroniza os comandos "/" com a API do Discord
         synced = await bot.tree.sync()
-        print(f"🔄 Sincronizados {len(synced)} comandos de barra globalmente!")
+        print(f"✅ Protocolo atualizado: {len(synced)} comandos ativos!")
     except Exception as e:
-        print(f"❌ Erro na sincronização: {e}")
-        
-    # --- AJUSTE PARA SLASH COMMANDS ---
-    try:
-        # Isso registra os comandos "/" no servidor
-        synced = await bot.tree.sync()
-        print(f"🔄 Sincronizados {len(synced)} comandos de barra!")
-    except Exception as e:
-        print(f"❌ Erro ao sincronizar comandos: {e}")
+        print(f"❌ Falha na sincronização neural: {e}")
     
     # Status visual do bot
-    await bot.change_presence(activity=discord.Game(name="Protocolo Horizonte 2030"))
-    print(f'--- Protocolo Horizonte 2030 ---\n')
+    await bot.change_presence(
+        activity=discord.Activity(
+            type=discord.ActivityType.watching, 
+            name="Vitória de Santo Antão 2030"
+        )
+    )
+    print(f'--- Feni está pronto para operar ---\n')
 
 # 5. Ponto de Entrada Principal
 async def main():
@@ -58,10 +65,12 @@ async def main():
         if token_servidor:
             await bot.start(token_servidor)
         else:
-            print("❌ ERRO: Variável 'TOKEN' não encontrada!")
+            print("❌ ERRO CRÍTICO: TOKEN não localizado!")
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Saindo...")
+        print("\n🛑 Sistema encerrado. Conexão perdida com 2030...")
+    except Exception as e:
+        print(f"\n☢️ Erro no núcleo: {e}")

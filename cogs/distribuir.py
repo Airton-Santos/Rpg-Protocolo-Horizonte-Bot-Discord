@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 from utils.db_manager import carregar_fichas, salvar_fichas
 
@@ -19,13 +20,12 @@ class ModalQuantidade(discord.ui.Modal, title="Distribuir Pontos"):
     async def on_submit(self, interaction: discord.Interaction):
         try:
             valor = int(self.quantidade.value)
-            # 1. Busca os dados mais recentes do Supabase no momento do clique
             fichas = carregar_fichas()
+            
             if self.usuario_id not in fichas:
                 return await interaction.response.send_message("❌ Ficha não encontrada!", ephemeral=True)
                 
             ficha = fichas[self.usuario_id]
-            
             pontos_disponiveis = ficha["informacoes"].get("pontos", 0)
             valor_atual_atributo = ficha["status"].get(self.atributo, 0)
 
@@ -35,7 +35,7 @@ class ModalQuantidade(discord.ui.Modal, title="Distribuir Pontos"):
             if pontos_disponiveis < valor:
                 return await interaction.response.send_message(f"❌ Você só tem {pontos_disponiveis} pontos!", ephemeral=True)
 
-            # 2. VERIFICAÇÃO DO CAP DE 50 PONTOS
+            # VERIFICAÇÃO DO CAP DE 50 PONTOS (Conforme sua regra)
             if valor_atual_atributo + valor > 50:
                 restante_para_50 = 50 - valor_atual_atributo
                 if restante_para_50 <= 0:
@@ -43,21 +43,18 @@ class ModalQuantidade(discord.ui.Modal, title="Distribuir Pontos"):
                 else:
                     return await interaction.response.send_message(f"❌ Limite excedido! Você só pode adicionar mais **{restante_para_50}** pontos.", ephemeral=True)
 
-            # 3. Atualiza os dados locais
+            # Atualiza dados
             ficha["status"][self.atributo] += valor
             ficha["informacoes"]["pontos"] -= valor
 
-            # 4. SALVA NO SUPABASE (Ajuste crucial)
             try:
-                # Enviamos apenas a ficha deste usuário para o Upsert
                 salvar_fichas({self.usuario_id: ficha})
-                
                 await interaction.response.send_message(
                     f"✅ **{self.atributo.upper()}** aumentado para **{ficha['status'][self.atributo]}**!\nRestam {ficha['informacoes']['pontos']} pontos.",
                     ephemeral=True
                 )
             except Exception as e:
-                await interaction.response.send_message(f"❌ Erro ao sincronizar com o banco: {e}", ephemeral=True)
+                await interaction.response.send_message(f"❌ Erro ao sincronizar: {e}", ephemeral=True)
 
         except ValueError:
             await interaction.response.send_message("❌ Digite apenas números inteiros!", ephemeral=True)
@@ -65,13 +62,12 @@ class ModalQuantidade(discord.ui.Modal, title="Distribuir Pontos"):
 # --- VIEW ---
 class ViewDistribuir(discord.ui.View):
     def __init__(self, usuario_id):
-        super().__init__(timeout=300) # Timeout de 5 minutos
+        super().__init__(timeout=300)
         self.usuario_id = usuario_id
 
     async def abrir_modal(self, interaction, atributo):
         if str(interaction.user.id) != self.usuario_id:
             return await interaction.response.send_message("❌ Esse painel pertence a outro usuário!", ephemeral=True)
-        
         await interaction.response.send_modal(ModalQuantidade(atributo, self.usuario_id))
 
     @discord.ui.button(label="FORÇA", style=discord.ButtonStyle.danger)
@@ -81,7 +77,7 @@ class ViewDistribuir(discord.ui.View):
     async def destreza(self, interaction, button): await self.abrir_modal(interaction, "destreza")
 
     @discord.ui.button(label="INTELIGÊNCIA", style=discord.ButtonStyle.primary)
-    async def inteligência(self, interaction, button): await self.abrir_modal(interaction, "inteligencia")
+    async def inteligencia(self, interaction, button): await self.abrir_modal(interaction, "inteligencia")
 
     @discord.ui.button(label="VIGOR", style=discord.ButtonStyle.secondary)
     async def vigor(self, interaction, button): await self.abrir_modal(interaction, "vigor")
@@ -97,18 +93,18 @@ class Evolucao(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="distribuir")
-    async def distribuir(self, ctx):
-        uid = str(ctx.author.id)
+    @app_commands.command(name="distribuir", description="Abre o painel para distribuir pontos de atributo")
+    async def distribuir(self, interaction: discord.Interaction):
+        uid = str(interaction.user.id)
         fichas = carregar_fichas()
 
         if uid not in fichas:
-            return await ctx.send("❌ Você não tem uma ficha! Use `!criar`.")
+            return await interaction.response.send_message("❌ Você não tem uma ficha! Use `/criar`.", ephemeral=True)
 
         pontos = fichas[uid]["informacoes"].get("pontos", 0)
         
         if pontos <= 0:
-            return await ctx.send("❌ Você não possui pontos disponíveis para distribuição.")
+            return await interaction.response.send_message("❌ Você não possui pontos disponíveis.", ephemeral=True)
 
         embed = discord.Embed(
             title="🛠️ Painel de Evolução Bio-Sinergia",
@@ -119,11 +115,10 @@ class Evolucao(commands.Cog):
             ),
             color=0xFFAA00
         )
-        embed.set_footer(text="Projeto Fenix | Vitória de Santo Antão 2030")
+        embed.set_footer(text="Projeto Fenix | Vitória 2030")
         
-        # Passamos apenas o UID para a View
         view = ViewDistribuir(uid)
-        await ctx.send(embed=embed, view=view)
+        await interaction.response.send_message(embed=embed, view=view)
 
 async def setup(bot):
     await bot.add_cog(Evolucao(bot))
