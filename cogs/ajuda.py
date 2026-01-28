@@ -60,6 +60,7 @@ class Utilitarios(commands.Cog):
                     "`/give` - Adiciona item ao inventário.\n"
                     "`/take` - Remove item do inventário.\n"
                     "`/delete` - Apaga permanentemente a ficha."
+                    "`/setapocalipse -  seta o apocalipse no mundo (só para o mestre)`"
                 ),
                 inline=False
             )

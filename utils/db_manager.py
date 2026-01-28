@@ -96,3 +96,24 @@ def carregar_caracteristicas(tipo):
     except Exception as e:
         print(f"❌ Erro ao ler {tipo}: {e}")
         return {}
+
+def verificar_apocalipse():
+    """Lê do banco se o mundo está em apocalipse ou não."""
+    try:
+        # Puxa o valor da linha id=1
+        res = supabase.table("configuracoes").select("apocalipse_ativo").eq("id", 1).execute()
+        if res.data:
+            return res.data[0]['apocalipse_ativo']
+        return False
+    except Exception as e:
+        print(f"Erro ao ler banco: {e}")
+        return False
+
+def alternar_apocalipse(novo_status: bool):
+    """Grava no banco o novo estado do mundo."""
+    try:
+        supabase.table("configuracoes").update({"apocalipse_ativo": novo_status}).eq("id", 1).execute()
+        return True
+    except Exception as e:
+        print(f"Erro ao gravar no banco: {e}")
+        return False
