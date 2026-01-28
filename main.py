@@ -28,10 +28,14 @@ async def load_extensions():
 # 4. Evento: Bot Online e Sincronização
 @bot.event
 async def on_ready():
-    print(f'\n--- 🟢 SISTEMA FENIX ONLINE ---')
-    print(f'Identidade: {bot.user.name}')
-    print(f'Prefixo: {prefixo_do_sistema}')
-    
+    print(f'--- 🟢 SISTEMA FENIX ONLINE ---')
+    try:
+        # Isso força a atualização imediata dos comandos de barra
+        synced = await bot.tree.sync()
+        print(f"🔄 Sincronizados {len(synced)} comandos de barra globalmente!")
+    except Exception as e:
+        print(f"❌ Erro na sincronização: {e}")
+        
     # --- AJUSTE PARA SLASH COMMANDS ---
     try:
         # Isso registra os comandos "/" no servidor
