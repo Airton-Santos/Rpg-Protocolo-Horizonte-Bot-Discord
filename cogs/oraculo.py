@@ -57,7 +57,7 @@ class Oraculo(commands.Cog):
                     {"role": "system", "content": sys_inst},
                     {"role": "user", "content": pergunta}
                 ],
-                model="grok-beta",
+                model="llama-3.3-70b-versatile", # <--- MUDE AQUI
                 temperature=0.6
             )
 
