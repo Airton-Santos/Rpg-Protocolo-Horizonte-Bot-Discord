@@ -13,7 +13,7 @@ class Oraculo(commands.Cog):
         self.ID_MESTRE = 465303026400231434 
         
         # Inicializa o cliente usando a API KEY do Grok
-        self.client_grok = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        self.client_grok = Groq(api_key=os.getenv("GROK_API_KEY"))
 
     @app_commands.command(name="oraculo", description="[MESTRE] Consulta o sistema Grok para sugestões narrativas")
     @app_commands.describe(pergunta="O que aconteceu ou o que você quer planejar?")
