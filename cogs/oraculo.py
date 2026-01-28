@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from groq import Groq  # Usando a biblioteca que você já utiliza
+from groq import Groq 
 import os
 import re
 from utils.db_manager import verificar_apocalipse
@@ -9,27 +9,24 @@ from utils.db_manager import verificar_apocalipse
 class Oraculo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # IMPORTANTE: Coloque aqui o ID do seu canal de mestre
-        self.ID_CANAL_MESTRE = 465303026400231434 
+        # Seu ID de Mestre (Senhor Airton) para trava biométrica
+        self.ID_MESTRE = 465303026400231434 
         
-        # Inicializa o cliente usando a API KEY do Grok que você tem no .env
-        self.client_grok = Groq(api_key=os.getenv("GROK_API_KEY"))
+        # Inicializa o cliente usando a API KEY do Grok
+        self.client_grok = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
     @app_commands.command(name="oraculo", description="[MESTRE] Consulta o sistema Grok para sugestões narrativas")
     @app_commands.describe(pergunta="O que aconteceu ou o que você quer planejar?")
     async def consultar_oraculo(self, interaction: discord.Interaction, pergunta: str):
-        # 1. Trava de Segurança: Só Administradores
-        if not interaction.user.guild_permissions.administrator:
+        # 1. Trava de Segurança por ID: Só você tem acesso, independente do canal ou permissão
+        if interaction.user.id != self.ID_MESTRE:
             return await interaction.response.send_message("❌ Acesso negado ao Protocolo Oráculo.", ephemeral=True)
 
-        # 2. Trava de Canal: Só responde no seu QG
-        if interaction.channel_id != self.ID_CANAL_MESTRE:
-            return await interaction.response.send_message("🤫 O Oráculo é secreto. Use-o no seu canal de mestre.", ephemeral=True)
-
-        await interaction.response.defer(thinking=True)
+        # Defer padrão para evitar timeout enquanto o Grok processa
+        await interaction.response.defer()
 
         try:
-            # 3. Verifica o estado atual do mundo no DB
+            # 2. Verifica o estado atual do mundo no DB
             esta_no_apocalipse = verificar_apocalipse()
             
             if not esta_no_apocalipse:
@@ -46,7 +43,7 @@ class Oraculo(commands.Cog):
                     "O tom é de terror de sobrevivência e desespero."
                 )
 
-            # 4. Prompt de Sistema no estilo Fenix
+            # 3. Prompt de Sistema no seu estilo original
             sys_inst = (
                 f"Você é o Oráculo, o Co-Mestre de um RPG de apocalipse zumbi chamado Projeto Fenix. "
                 f"Local: Vitória de Santo Antão, PE. Ano: 2030. "
@@ -54,22 +51,22 @@ class Oraculo(commands.Cog):
                 "Responda ao mestre de forma criativa, sombria, técnica e direta."
             )
 
-            # 5. Chamada ao Grok
+            # 4. Chamada ao Grok
             chat = self.client_grok.chat.completions.create(
                 messages=[
                     {"role": "system", "content": sys_inst},
                     {"role": "user", "content": pergunta}
                 ],
-                model="grok-beta", # Nome do modelo Grok
+                model="grok-beta",
                 temperature=0.6
             )
 
             resposta_bruta = chat.choices[0].message.content
             
-            # Aplicando sua Regex de limpeza para manter o padrão do Senhor Airton
+            # Sua Regex de limpeza para manter o padrão do Senhor Airton
             texto_final = re.sub(r'[^\w\s\d.,?!áàâãéèêíïóôõúüçÁÀÂÃÉÈÊÍÏÓÔÕÚÜÇ]', '', resposta_bruta)
 
-            # 6. Formatação da Resposta
+            # 5. Formatação da Resposta
             embed = discord.Embed(
                 title="💀 Oráculo Grok: Protocolo 2030",
                 description=texto_final,

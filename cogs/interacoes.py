@@ -8,7 +8,7 @@ from utils.db_manager import verificar_apocalipse
 class Interacoes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        self.client_groq = Groq(api_key=os.getenv("GROK_API_KEY"))
         # ID do Senhor Airton (substitua pelo seu ID real do Discord)
         self.ID_MESTRE = 465303026400231434 
 
