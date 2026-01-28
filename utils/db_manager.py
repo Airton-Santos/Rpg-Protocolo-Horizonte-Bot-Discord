@@ -48,6 +48,16 @@ def salvar_fichas(dados_para_salvar):
     except Exception as e:
         print(f"❌ Erro ao salvar no Supabase: {e}")
 
+def deletar_fichas(usuario_id):
+    """Remove a ficha do banco de dados remoto."""
+    if not supabase: return False
+    try:
+        resposta = supabase.table("fichas").delete().eq("id", str(usuario_id)).execute()
+        return True if resposta.data else False
+    except Exception as e:
+        print(f"❌ Erro ao deletar no Supabase: {e}")
+        return False
+
 # --- FUNÇÕES DE ITENS (CATÁLOGO GLOBAL) ---
 
 def carregar_itens():
