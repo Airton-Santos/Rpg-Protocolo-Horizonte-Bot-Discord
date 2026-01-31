@@ -25,6 +25,10 @@ class Perfil(commands.Cog):
         st = f.get("status", {})
         vantagens = f.get("vantagens", [])
         desvantagens = f.get("desvantagens", [])
+        
+        # --- NOVO: Puxando o estado de saúde ---
+        # Se não houver nada definido, o padrão é "Saudável (OK)"
+        estado_atual = f.get("estado", "Saudável (OK)")
 
         embed = discord.Embed(
             title=f"👤 Registro Bio-Sinergia: {info.get('nome', 'Desconhecido')}",
@@ -44,8 +48,12 @@ class Perfil(commands.Cog):
         )
         embed.add_field(name="📋 Biometria", value=dados_txt, inline=False)
 
+        # --- NOVO: Campo de Estado de Saúde ---
+        # Definindo um emoji dinâmico baseado no estado
+        emoji_estado = "🟢" if "OK" in estado_atual.upper() or "SAUDÁVEL" in estado_atual.upper() else "⚠️"
+        embed.add_field(name=f"{emoji_estado} Condição Biológica", value=f"**{estado_atual}**", inline=False)
+
         # Atributos (Grade formatada para visual de terminal)
-        # O :02d garante o alinhamento (01, 10, 25...)
         atributos_txt = (
             f"```arm\n"
             f"FOR: {st.get('forca', 0):02d} | VIG: {st.get('vigor', 0):02d}\n"

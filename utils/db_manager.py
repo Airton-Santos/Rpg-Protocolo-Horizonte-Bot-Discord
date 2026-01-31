@@ -117,3 +117,39 @@ def alternar_apocalipse(novo_status: bool):
     except Exception as e:
         print(f"Erro ao gravar no banco: {e}")
         return False
+    
+def salvar_estado_player(usuario_id, novo_estado):
+    """Atualiza apenas o campo 'estado' dentro do JSON de dados da ficha."""
+    if not supabase: return False
+    try:
+        # 1. Busca a ficha atual para não sobrescrever outros dados (como inventário/atributos)
+        res = supabase.table("fichas").select("dados").eq("id", str(usuario_id)).execute()
+        
+        if res.data:
+            dados_atuais = res.data[0]['dados']
+            # 2. Adiciona ou atualiza o campo estado
+            dados_atuais['estado'] = novo_estado
+            
+            # 3. Salva a ficha atualizada
+            supabase.table("fichas").update({"dados": dados_atuais}).eq("id", str(usuario_id)).execute()
+            return True
+        else:
+            print(f"⚠️ Ficha do usuário {usuario_id} não encontrada para atualizar estado.")
+            return False
+    except Exception as e:
+        print(f"❌ Erro ao salvar estado no Supabase: {e}")
+        return False
+
+def buscar_estado_player(usuario_id):
+    """Busca o estado de saúde atual do player na ficha."""
+    if not supabase: return "Desconhecido"
+    try:
+        res = supabase.table("fichas").select("dados").eq("id", str(usuario_id)).execute()
+        if res.data:
+            dados = res.data[0]['dados']
+            # Retorna o estado ou 'OK' se o campo ainda não existir
+            return dados.get('estado', 'OK')
+        return "Sem Ficha"
+    except Exception as e:
+        print(f"❌ Erro ao buscar estado: {e}")
+        return "Erro"

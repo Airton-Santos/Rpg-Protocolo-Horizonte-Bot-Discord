@@ -1,0 +1,93 @@
+{
+  "doencas": [
+    {
+      "id": "gripe",
+      "nome": "Gripe",
+      "causa": "Exposição ao frio, chuva ou contato.",
+      "descricao": "Fadiga, coriza e dor de cabeça.",
+      "penalidades": {
+        "per": -2,
+        "von": -2,
+        "const": -1
+      }
+    },
+    {
+      "id": "febre_alta",
+      "nome": "Febre Alta",
+      "causa": "Infecções ou insolação severa.",
+      "descricao": "Temperatura corporal acima de 39°C e delírios.",
+      "penalidades": {
+        "int": -4,
+        "wis": -2,
+        "mira": -2
+      }
+    },
+    {
+      "id": "infeccao_local",
+      "nome": "Infecção Local",
+      "causa": "Cortes não tratados ou material sujo.",
+      "descricao": "Ferida latejante com pus e inflamação.",
+      "penalidades": {
+        "dex": -3,
+        "agi": -2,
+        "hp_max": -5
+      }
+    },
+    {
+      "id": "disenteria",
+      "nome": "Disenteria",
+      "causa": "Água contaminada ou comida podre.",
+      "descricao": "Cãibras abdominais e desidratação severa.",
+      "penalidades": {
+        "str": -5,
+        "const": -4,
+        "mov": -3
+      }
+    },
+    {
+      "id": "insolacao",
+      "nome": "Insolação",
+      "causa": "Exposição solar extrema sem proteção.",
+      "descricao": "Tontura, pele seca e colapso térmico.",
+      "penalidades": {
+        "dex": -4,
+        "agi": -3,
+        "per": -2
+      }
+    },
+    {
+      "id": "conjuntivite",
+      "nome": "Conjuntivite",
+      "causa": "Poeira de escombros ou infecção viral.",
+      "descricao": "Visão embaçada, secreção e sensibilidade à luz.",
+      "penalidades": {
+        "mira": -6,
+        "per": -4,
+        "dex": -1
+      }
+    },
+    {
+      "id": "hipotermia",
+      "nome": "Hipotermia",
+      "causa": "Frio extremo ou roupas molhadas.",
+      "descricao": "Perda de calor central e tremores incontroláveis.",
+      "penalidades": {
+        "str": -4,
+        "dex": -4,
+        "int": -4,
+        "agi": -4
+      }
+    },
+    {
+      "id": "tetano",
+      "nome": "Tétano",
+      "causa": "Ferimentos com metal oxidado (ferrugem).",
+      "descricao": "Rigidez muscular e espasmos.",
+      "penalidades": {
+        "mov": -5,
+        "dex": -3,
+        "str": -2
+      }
+    }
+  ]
+}
