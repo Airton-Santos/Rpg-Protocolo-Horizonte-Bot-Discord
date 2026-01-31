@@ -20,7 +20,7 @@ class Dados(commands.Cog):
         }
 
     def carregar_dados_doencas(self):
-        caminho = "data/doencas.json" # Certifique-se que o arquivo está nesta pasta
+        caminho = "data/doencas.json"
         if os.path.exists(caminho):
             with open(caminho, "r", encoding="utf-8") as f:
                 return json.load(f).get("doencas", [])
@@ -41,20 +41,18 @@ class Dados(commands.Cog):
         modificador_total = 0
         logs_efeitos = []
 
-        # 1. VERIFICAÇÃO DE DOENÇAS (A novidade está aqui)
+        # 1. VERIFICAÇÃO DE DOENÇAS (Desconto direto no teste)
         estado_player = ficha.get("estado", "OK").upper()
         if estado_player != "OK":
             doencas_lista = self.carregar_dados_doencas()
-            # Busca a doença pelo nome ou ID
             doenca_ativa = next((d for d in doencas_lista if d["nome"].upper() == estado_player or d["id"].upper() == estado_player), None)
             
             if doenca_ativa:
                 penalidades_doenca = doenca_ativa.get("penalidades", {})
-                # Pega a sigla curta correspondente ao atributo (ex: forca -> str)
                 sigla_curta = self.mapa_atributos.get(atributo_alvo)
                 
                 if sigla_curta in penalidades_doenca:
-                    valor_penalidade = penalidades_doenca[sigla_curta] # Ex: -3
+                    valor_penalidade = penalidades_doenca[sigla_curta]
                     modificador_total += valor_penalidade
                     logs_efeitos.append(f"🦠 **{doenca_ativa['nome']}**: {valor_penalidade}")
 
@@ -87,9 +85,7 @@ class Dados(commands.Cog):
         }, None
 
     async def enviar_embed(self, interaction: discord.Interaction, titulo, cor, res):
-        # Muda a cor para vermelho se o player estiver doente para alertar
         cor_final = 0xc0392b if res['doente'] else cor
-        
         embed = discord.Embed(title=titulo, color=cor_final)
         embed.set_author(name=f"Personagem: {res['nome']}")
         
@@ -109,7 +105,8 @@ class Dados(commands.Cog):
         embed.set_footer(text="Projeto Fenix | Protocolo de Saúde Ativo")
         await interaction.response.send_message(embed=embed)
 
-    # --- COMANDOS ---
+    # --- COMANDOS COMPLETOS ---
+
     @app_commands.command(name="tfor", description="Teste de Força")
     async def teste_forca(self, interaction: discord.Interaction, alvo: discord.Member = None):
         user = alvo or interaction.user
@@ -145,6 +142,15 @@ class Dados(commands.Cog):
         res, err = self.realizar_teste(str(user.id), "percepcao", p, b)
         if err: return await interaction.response.send_message(f"{user.display_name}: {err}", ephemeral=True)
         await self.enviar_embed(interaction, "👁️ Teste de Percepção", 0x3498db, res)
+
+    @app_commands.command(name="tcar", description="Teste de Carisma")
+    async def teste_carisma(self, interaction: discord.Interaction, alvo: discord.Member = None):
+        user = alvo or interaction.user
+        p = {"pavio curto": (3, "Pavio Curto"), "anti-social": (4, "Anti-Social")}
+        b = {"extrovertido": (2, "Extrovertido")}
+        res, err = self.realizar_teste(str(user.id), "carisma", p, b)
+        if err: return await interaction.response.send_message(f"{user.display_name}: {err}", ephemeral=True)
+        await self.enviar_embed(interaction, "🗣️ Teste de Carisma", 0xe91e63, res)
 
     @app_commands.command(name="tint", description="Teste de Inteligência")
     async def teste_inteligencia(self, interaction: discord.Interaction, alvo: discord.Member = None):

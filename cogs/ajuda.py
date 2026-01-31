@@ -47,6 +47,7 @@ class Utilitarios(commands.Cog):
                 "`/tfor` (Força) | `/tdex` (Destreza)\n"
                 "`/tvig` (Vigor) | `/tper` (Percepção)\n"
                 "`/tint` (Inteligência) | `/tcar` (Carisma)"
+                "*Nota: Doenças aplicam penalidades automáticas nos rolagens.*"
             ),
             inline=False
         )
@@ -56,6 +57,7 @@ class Utilitarios(commands.Cog):
             embed.add_field(
                 name="🛠️ Administração (Mestre)",
                 value=(
+                    "`/estado` - Define saúde/doença de um player.\n"
                     "`/addpontos` - Dá pontos de evolução.\n"
                     "`/give` - Adiciona item ao inventário.\n"
                     "`/take` - Remove item do inventário.\n"
