@@ -26,9 +26,12 @@ class Perfil(commands.Cog):
         vantagens = f.get("vantagens", [])
         desvantagens = f.get("desvantagens", [])
         
-        # --- NOVO: Puxando o estado de saúde ---
-        # Se não houver nada definido, o padrão é "Saudável (OK)"
+        # --- ESTADO DE SAÚDE ---
         estado_atual = f.get("estado", "Saudável (OK)")
+        
+        # --- CAPITALISMO (MOEDAS) ---
+        # Pegamos o valor de moedas que salvamos no banco
+        moedas = f.get("moedas", 0)
 
         embed = discord.Embed(
             title=f"👤 Registro Bio-Sinergia: {info.get('nome', 'Desconhecido')}",
@@ -36,24 +39,32 @@ class Perfil(commands.Cog):
             color=0x2b2d31
         )
 
-        # Avatar do jogador
-        if alvo.display_avatar:
-            embed.set_thumbnail(url=alvo.display_avatar.url)
+        # --- IMAGEM DE APARÊNCIA (Hero Forge) ---
+        # Se houver uma foto salva no banco, ela vira a imagem principal
+        # Se não, usamos o avatar do Discord no canto (Thumbnail)
+        foto_rp = f.get("aparencia")
+        if foto_rp:
+            embed.set_image(url=foto_rp)
+            # Se tem foto grande, o avatar do discord fica pequeno no canto
+            if alvo.display_avatar:
+                embed.set_thumbnail(url=alvo.display_avatar.url)
+        elif alvo.display_avatar:
+            embed.set_image(url=alvo.display_avatar.url)
 
-        # Dados Pessoais
+        # Dados Pessoais e Capitalismo
         dados_txt = (
             f"🎂 **Idade:** {info.get('idade', '??')} anos\n"
             f"💼 **Estágio:** {info.get('profissao', 'Nenhum')}\n"
-            f"📈 **Pontos Extras:** `{info.get('pontos', 0)}`"
+            f"📈 **Pontos Extras:** `{info.get('pontos', 0)}`\n"
+            f"💰 **Capital:** `{moedas}` moedas"
         )
         embed.add_field(name="📋 Biometria", value=dados_txt, inline=False)
 
-        # --- NOVO: Campo de Estado de Saúde ---
-        # Definindo um emoji dinâmico baseado no estado
+        # Campo de Estado de Saúde
         emoji_estado = "🟢" if "OK" in estado_atual.upper() or "SAUDÁVEL" in estado_atual.upper() else "⚠️"
         embed.add_field(name=f"{emoji_estado} Condição Biológica", value=f"**{estado_atual}**", inline=False)
 
-        # Atributos (Grade formatada para visual de terminal)
+        # Atributos (Grade formatada)
         atributos_txt = (
             f"```arm\n"
             f"FOR: {st.get('forca', 0):02d} | VIG: {st.get('vigor', 0):02d}\n"
