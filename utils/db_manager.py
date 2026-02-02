@@ -153,3 +153,55 @@ def buscar_estado_player(usuario_id):
     except Exception as e:
         print(f"❌ Erro ao buscar estado: {e}")
         return "Erro"
+
+# --- NOVAS FUNÇÕES DE ECONOMIA E INFECÇÃO ---
+
+def atualizar_fichas_supabase(usuario_id, novos_dados_internos):
+    """
+    Atualiza campos específicos dentro da coluna JSON 'dados'.
+    Exemplo de novos_dados_internos: {"moedas": 50, "infecção": "10%"}
+    """
+    if not supabase: return False
+    try:
+        uid = str(usuario_id)
+        # 1. Busca a ficha atual para pegar o que já existe (atributos, nome, etc)
+        res = supabase.table("fichas").select("dados").eq("id", uid).execute()
+        
+        if res.data:
+            dados_completos = res.data[0]['dados']
+            
+            # 2. Atualiza apenas os campos que enviamos (moedas, por exemplo)
+            for chave, valor in novos_dados_internos.items():
+                dados_completos[chave] = valor
+            
+            # 3. Salva o JSON inteiro atualizado de volta na coluna 'dados'
+            supabase.table("fichas").update({"dados": dados_completos}).eq("id", uid).execute()
+            return True
+        return False
+    except Exception as e:
+        print(f"❌ Erro ao atualizar campos internos: {e}")
+        return False
+
+def adicionar_remover_moedas(usuario_id, quantidade, operacao="add"):
+    """Função específica para somar ou subtrair moedas sem erro."""
+    if not supabase: return False
+    try:
+        uid = str(usuario_id)
+        res = supabase.table("fichas").select("dados").eq("id", uid).execute()
+        
+        if res.data:
+            dados = res.data[0]['dados']
+            saldo_atual = dados.get('moedas', 0)
+            
+            if operacao == "add":
+                novo_saldo = saldo_atual + quantidade
+            else:
+                novo_saldo = max(0, saldo_atual - quantidade) # Impede saldo negativo
+            
+            dados['moedas'] = novo_saldo
+            supabase.table("fichas").update({"dados": dados}).eq("id", uid).execute()
+            return novo_saldo
+        return None
+    except Exception as e:
+        print(f"❌ Erro na operação de moedas: {e}")
+        return None
