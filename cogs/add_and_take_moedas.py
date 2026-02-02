@@ -8,7 +8,7 @@ class Economia(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # COLOQUE SEU ID DE USUÁRIO DO DISCORD AQUI (Ex: 1234567890)
-        self.MESTRE_ID = 465303026400231434 
+        self.MESTRE_ID = 123456789012345678 
 
     # --- COMANDO PARA INICIAR A CARTEIRA COM 0 ---
     @app_commands.command(name="registrar_carteira", description="[MESTRE] Ativa o sistema de moedas na ficha de um sobrevivente")
@@ -48,4 +48,38 @@ class Economia(commands.Cog):
         if quantidade <= 0:
             return await interaction.response.send_message("❌ A quantidade deve ser maior que zero!", ephemeral=True)
 
-        uid_
+        uid_alvo = str(alvo.id)
+        fichas = carregar_fichas()
+
+        if uid_alvo not in fichas:
+            return await interaction.response.send_message(f"❌ {alvo.display_name} não possui carteira. Use `/registrar_carteira` primeiro.", ephemeral=True)
+
+        # Logica de saldo
+        saldo_atual = fichas[uid_alvo].get("moedas", 0)
+
+        if acao == "add":
+            novo_saldo = saldo_atual + quantidade
+            verbo, cor = "adicionadas a", 0x2ecc71
+        else:
+            if quantidade > saldo_atual:
+                return await interaction.response.send_message(f"❌ Saldo insuficiente! {alvo.display_name} tem apenas {saldo_atual} moedas.", ephemeral=True)
+            novo_saldo = saldo_atual - quantidade
+            verbo, cor = "removidas de", 0xe74c3c
+
+        # Salva no Supabase
+        sucesso = atualizar_fichas_supabase(uid_alvo, {"moedas": novo_saldo})
+
+        if sucesso:
+            embed = discord.Embed(
+                title="⚖️ Atualização de Capital",
+                description=f"Foram **{quantidade} moedas** {verbo} **{alvo.display_name}**.\n\n💰 Saldo Atual: `{novo_saldo}` moedas.",
+                color=cor
+            )
+            embed.set_footer(text="PROJETO FENIX | Vitória 2030")
+            await interaction.response.send_message(embed=embed)
+        else:
+            await interaction.response.send_message("❌ Erro técnico ao atualizar o banco de dados.", ephemeral=True)
+
+# Função obrigatória para o bot carregar o Cog
+async def setup(bot):
+    await bot.add_cog(Economia(bot))
