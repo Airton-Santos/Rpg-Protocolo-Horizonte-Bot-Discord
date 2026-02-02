@@ -7,13 +7,20 @@ class Perfil(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def criar_barra_infeccao(self, pct):
+        """Gera uma barra visual de progresso para a infecção."""
+        total_blocos = 10
+        preenchidos = int(pct / 10)
+        vazios = total_blocos - preenchidos
+        barra = "█" * preenchidos + "░" * vazios
+        return barra
+
     @app_commands.command(name="perfil", description="Exibe o registro biométrico e atributos de um cidadão")
     @app_commands.describe(alvo="Opcional: Marque um jogador para ver o perfil dele")
     async def exibir_perfil(self, interaction: discord.Interaction, alvo: discord.Member = None):
         alvo = alvo or interaction.user
         uid = str(alvo.id)
         
-        # Busca no Supabase através do db_manager
         fichas = carregar_fichas()
 
         if uid not in fichas:
@@ -25,33 +32,28 @@ class Perfil(commands.Cog):
         st = f.get("status", {})
         vantagens = f.get("vantagens", [])
         desvantagens = f.get("desvantagens", [])
-        
-        # --- ESTADO DE SAÚDE ---
-        estado_atual = f.get("estado", "Saudável (OK)")
-        
-        # --- CAPITALISMO (MOEDAS) ---
-        # Pegamos o valor de moedas que salvamos no banco
         moedas = f.get("moedas", 0)
-
+        
+        # --- LÓGICA DE INFECÇÃO ---
+        estado_atual = f.get("estado", "Saudável (OK)")
+        pct_infec = f.get("infeccao_porcentagem", 0)
+        
         embed = discord.Embed(
             title=f"👤 Registro Bio-Sinergia: {info.get('nome', 'Desconhecido')}",
             description=f"**Setor:** Vitória de Santo Antão | **Ano:** 2030",
             color=0x2b2d31
         )
 
-        # --- IMAGEM DE APARÊNCIA (Hero Forge) ---
-        # Se houver uma foto salva no banco, ela vira a imagem principal
-        # Se não, usamos o avatar do Discord no canto (Thumbnail)
+        # --- IMAGEM ---
         foto_rp = f.get("aparencia")
         if foto_rp:
             embed.set_image(url=foto_rp)
-            # Se tem foto grande, o avatar do discord fica pequeno no canto
             if alvo.display_avatar:
                 embed.set_thumbnail(url=alvo.display_avatar.url)
         elif alvo.display_avatar:
             embed.set_image(url=alvo.display_avatar.url)
 
-        # Dados Pessoais e Capitalismo
+        # Dados Pessoais
         dados_txt = (
             f"🎂 **Idade:** {info.get('idade', '??')} anos\n"
             f"💼 **Estágio:** {info.get('profissao', 'Nenhum')}\n"
@@ -60,11 +62,18 @@ class Perfil(commands.Cog):
         )
         embed.add_field(name="📋 Biometria", value=dados_txt, inline=False)
 
-        # Campo de Estado de Saúde
-        emoji_estado = "🟢" if "OK" in estado_atual.upper() or "SAUDÁVEL" in estado_atual.upper() else "⚠️"
-        embed.add_field(name=f"{emoji_estado} Condição Biológica", value=f"**{estado_atual}**", inline=False)
+        # --- CAMPO DE INFECÇÃO (BARRA VISUAL) ---
+        if pct_infec > 0:
+            barra = self.criar_barra_infeccao(pct_infec)
+            # Define o emoji baseado no perigo
+            emoji_perigo = "☣️" if pct_infec < 100 else "💀"
+            txt_infeccao = f"**Status:** `{estado_atual}`\n`[{barra}]` **{pct_infec}%**"
+            embed.add_field(name=f"{emoji_perigo} Alerta de Patógeno: Projeto Éden", value=txt_infeccao, inline=False)
+            embed.color = 0xc0392b # Vermelho se estiver infectado
+        else:
+            embed.add_field(name="🟢 Condição Biológica", value=f"**{estado_atual}**", inline=False)
 
-        # Atributos (Grade formatada)
+        # Atributos
         atributos_txt = (
             f"```arm\n"
             f"FOR: {st.get('forca', 0):02d} | VIG: {st.get('vigor', 0):02d}\n"
@@ -74,14 +83,13 @@ class Perfil(commands.Cog):
         )
         embed.add_field(name="⚙️ Atributos", value=atributos_txt, inline=False)
 
-        # Traços de Personalidade
+        # Traços
         v_lista = ", ".join(vantagens) if vantagens else "Nenhuma"
         d_lista = ", ".join(desvantagens) if desvantagens else "Nenhuma"
-
         embed.add_field(name="🟢 Vantagens", value=f"*{v_lista}*", inline=True)
         embed.add_field(name="🔴 Desvantagens", value=f"*{d_lista}*", inline=True)
 
-        embed.set_footer(text="PROTOCOLO FENIX | Vitória 2030")
+        embed.set_footer(text="PROTOCOLO FENIX | Monitoramento em Tempo Real")
         
         await interaction.response.send_message(embed=embed)
 
